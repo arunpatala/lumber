@@ -19,14 +19,15 @@ epochs = 30
 num_classes = len(CLASS_NAMES)
 
 model = resnet50(pretrained=True)
-model.fc = nn.Sequential( nn.Linear(512,num_classes), nn.Sigmoid())
+model.fc = nn.Sequential( nn.Linear(model.fc.in_features, num_classes), nn.Sigmoid())
 
 trainer = ModuleTrainer(model.cuda())
 
 trainer.compile(loss=nn.BCELoss().cuda(), 
     optimizer='adam', 
     metrics=[BinaryAccuracy()],
-    callbacks=[ModelCheckpoint(directory = "../input/torch/", filename='torch{epoch}.pth.tar')])
+    callbacks=[ModelCheckpoint(directory = "../input/torch/", 
+                filename='torch{epoch}.{loss}.pth.tar', monitor='val_loss')])
 
 from torchsample import TensorDataset
 from torch.utils.data import DataLoader
